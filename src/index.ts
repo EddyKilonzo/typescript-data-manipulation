@@ -201,48 +201,153 @@
 // TYPE MANIPULATION
 
 
-function getStringArray(items: string[]): string[] {
+// function getStringArray(items: string[]): string[] {
 
-    console.log(items);
-    return items.slice();
-}
-function getNumberArray(items: number[]): number[] {
-    console.log(items);
-    return items.slice();
-}
-// getStringArray(["jonh", "jane", "doe"]);
+//     console.log(items);
+//     return items.slice();
+// }
+// function getNumberArray(items: number[]): number[] {
+//     console.log(items);
+//     return items.slice();
+// }
+// // getStringArray(["jonh", "jane", "doe"]);
 
-// getNumberArray([1, 2, 3, 4, 5]);    
+// // getNumberArray([1, 2, 3, 4, 5]);    
 
 
-function getArray<K> (items: K[]): K[]{
-    console.log(items);
-    return items.slice();
-}
-// getArray(["john", "jane", "doe"]);
+// function getArray<K> (items: K[]): K[]{
+//     console.log(items);
+//     return items.slice();
+// }
+// // getArray(["john", "jane", "doe"]);
 
-interface ApiResponse<T>  {
-    data: T;
-    status: 'success' | 'error';
-    timestamp: number;
-    message: string;
+// interface ApiResponse<T>  {
+//     data: T;
+//     status: 'success' | 'error';
+//     timestamp: number;
+//     message: string;
 
+// }
+// interface user {
+//     id: string;
+//     name: string;
+//     email: string;
+//     age: number;
+//     profileImage?: string;
+// }
+// interface product {
+//     id: string;
+//     name: string;
+//     price: number;
+//     quantity: number;
+//     reviews: number;
+//     rating: number;
+//     inStock: boolean;
+// }
+// type UserResponse = ApiResponse<user>;
+// type ProductResponse = ApiResponse<product>;
+
+// type userKey = keyof user;
+// // console.log(userKey);
+
+// type isString<T> = T extends string ? true : false;
+
+// type test1 = isString<string>; // true
+// type test2 = isString<number>; // false
+// type test3 = isString<"hello">; // true
+// type test4 = isString<123>; // false
+
+
+//DECORATORS
+
+
+
+// console.log("Program start.....");
+
+// function Decorator(target: any, propertyKey: string, descriptor: PropertyDescriptor ) {
+//     console.log("Decorator runs now!....");
+
+// }
+
+// class User{
+//     @Decorator
+//     greet() {
+//         console.log("Method is runnning....");
+//     }
+// }
+
+// console.log("Class has been defined, creating an instance...")
+// const user1 = new User();
+
+// console.log("calling greet()");
+// user1.greet();
+
+
+// function Log(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+//     const method = descriptor.value;
+//     descriptor.value = function(args:  any[] ) {
+//         console.log(`calling ${propertyKey} with arguments`, args);
+//         const result = method.apply(this, args);
+//         return result;
+//     }
+// }
+
+function Log(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    const method = descriptor.value;
+    descriptor.value = function(...args: any[]) {
+        console.log(`calling ${propertyKey} with arguments`, args);
+        console.log(`Method name: ${propertyKey}`);
+        const result = method.apply(this, args);
+        return result;
+    }
 }
-interface user {
-    id: string;
-    name: string;
-    email: string;
-    age: number;
-    profileImage?: string;
+
+class Calculator {
+    @Log
+    add(a: number, b: number): number {
+        console.log("Adding numbers...");
+        return a + b;
+    }
+    // @Log
+    // divide(a: number, b: number) :number {
+    //     return a / b;
+    // }
+    // multiply(a: number, b: number): number {
+    //     return a * b;
+    // }
 }
-interface product {
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-    reviews: number;
-    rating: number;
-    inStock: boolean;
+const calc = new Calculator();
+calc.add(5, 10);
+
+
+function LogLevel(level: 'info' | 'debug' | 'error') {
+    return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        const method = descriptor.value;
+        
+        descriptor.value = function(...args: any[]) {
+            console.log(`[${level}] calling ${propertyKey} with arguments`, args);
+            return method.apply(this, args);
+        }
+    }
 }
-type UserResponse = ApiResponse<user>;
-type ProductResponse = ApiResponse<product>;
+
+class UserServices {
+    @LogLevel('info')
+    getUserInfo(id:string) {
+        return{id, name: "John Doe"}
+    }
+
+    @LogLevel('debug')
+    handleUserError(error: string) {
+        throw new Error(error);
+    }
+
+    @LogLevel('error')
+    debugUserInfo(id: string) {
+        return user1;
+    }
+}
+
+const user1 = new UserServices();
+
+user1.getUserInfo("123");
